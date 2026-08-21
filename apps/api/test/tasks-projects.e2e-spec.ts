@@ -10,6 +10,8 @@ describe('Tasks + Projects (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
   let workspaceId: string;
+  let guestUserId: string;
+  let agent: ReturnType<typeof request.agent>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -21,14 +23,22 @@ describe('Tasks + Projects (e2e)', () => {
       data: { name: 'E2E Workspace', slug: `e2e-${Date.now()}` },
     });
     workspaceId = workspace.id;
+
+    // Persistent cookie jar: log in once as a guest, reuse the session for every request below.
+    agent = request.agent(app.getHttpServer());
+    const guest = await agent.post('/api/v1/auth/guest').expect(200);
+    guestUserId = guest.body.id;
   });
 
   afterAll(async () => {
     await prisma.workspace.delete({ where: { id: workspaceId } });
+    const guestPref = await prisma.userPreference.findUnique({ where: { userId: guestUserId } });
+    if (guestPref?.activeWorkspaceId) await prisma.workspace.delete({ where: { id: guestPref.activeWorkspaceId } });
+    await prisma.user.delete({ where: { id: guestUserId } });
     await app.close();
   });
 
-  const api = () => request(app.getHttpServer());
+  const api = () => agent;
 
   describe('/projects', () => {
     let projectId: string;
