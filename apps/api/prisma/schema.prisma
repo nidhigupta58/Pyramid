@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Priority {
+  NO_PRIORITY
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Status {
+  TODO
+  DOING
+  COMPLETED
+  ON_HOLD
+  BACKLOG
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+enum Accent {
+  AMBER
+  BLUE
+  PINK
+  ROSE
+  EMERALD
+  BLACK
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id          String          @id @default(cuid())
+  email       String          @unique
+  fullName    String?
+  title       String?
+  username    String?         @unique
+  avatarUrl   String?
+  isGuest     Boolean         @default(false)
+  googleId    String?         @unique
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  preference  UserPreference?
+  memberships Membership[]
+  taskMembers TaskMember[]
+  comments    Comment[]
+  activity    Activity[]
+
+  @@map("users")
+}
+
+model UserPreference {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  theme             Theme    @default(LIGHT)
+  accent            Accent   @default(BLUE)
+  listFields        Json
+  boardFields       Json
+  defaultView       String   @default("board")
+  activeWorkspaceId String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model Workspace {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  createdAt   DateTime     @default(now())
+  members     Membership[]
+  projects    Project[]
+  tasks       Task[]
+  labels      Label[]
+  invitations Invitation[]
+
+  @@map("workspaces")
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        Role      @default(MEMBER)
+  joinedAt    DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+  @@map("memberships")
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  workspaceId String
+  email       String
+  role        Role      @default(MEMBER)
+  token       String    @unique
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@map("invitations")
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  priority    Priority  @default(NO_PRIORITY)
+  leadId      String?
+  dueDate     DateTime?
+  position    Float
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  @@index([workspaceId, position])
+  @@map("projects")
+}
+
+model Task {
+  id           String       @id @default(cuid())
+  workspaceId  String
+  projectId    String?
+  parentId     String?
+  title        String
+  description  String?
+  status       Status       @default(TODO)
+  priority     Priority     @default(NO_PRIORITY)
+  position     Float
+  dueDate      DateTime?
+  assigneeId   String?
+  reporterId   String?
+  team         String?
+  tags         String[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  workspace    Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project      Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  parent       Task?        @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks     Task[]       @relation("Subtasks")
+  members      TaskMember[]
+  labels       TaskLabel[]
+  comments     Comment[]
+  activity     Activity[]
+
+  @@index([workspaceId, status, position])
+  @@index([projectId])
+  @@map("tasks")
+}
+
+model Label {
+  id          String      @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String?
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks       TaskLabel[]
+
+  @@unique([workspaceId, name])
+  @@map("labels")
+}
+
+model TaskLabel {
+  taskId  String
+  labelId String
+  task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label   Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@map("task_labels")
+}
+
+model TaskMember {
+  taskId String
+  userId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+  @@map("task_members")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  taskId    String
+  actorId   String
+  verb      String
+  meta      Json
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor     User     @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@map("activity")
+}
