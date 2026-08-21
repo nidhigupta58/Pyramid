@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { CollapsibleGroup } from "@/components/collapsible-group";
-import { cn } from "@/lib/utils";
 
 export interface GroupedTableColumn<T> {
   header: string;
+  width?: string; // e.g. "7rem" — defaults to 7rem, Due Date columns pass 9rem (matches refs)
   render: (row: T) => ReactNode;
 }
 
@@ -14,10 +14,6 @@ export interface GroupedTableGroup<T> {
   label: string;
   rows: T[];
 }
-
-// Fixed 5-column shape from the refs (§8): a flexible name column, three 7/7/9rem data
-// columns, and a 5rem actions column. Both Tasks and Projects reuse this exact grid.
-const GRID_COLS = "grid-cols-[minmax(0,1fr)_7rem_7rem_9rem_5rem]";
 
 // A plain (server-renderable) function, not a "use client" component: it just composes JSX
 // from `render` callbacks supplied by the calling Server Component page, which is fine as
@@ -34,24 +30,27 @@ export function GroupedTable<T extends { id: string }>({
   groups: GroupedTableGroup<T>[];
   nameHeader: string;
   nameRender: (row: T) => ReactNode;
-  columns: [GroupedTableColumn<T>, GroupedTableColumn<T>, GroupedTableColumn<T>];
+  columns: GroupedTableColumn<T>[];
   addLabel: string;
   hrefFor: (row: T) => string;
 }) {
+  // Field toggles (P9) hide/show columns, so the grid can't be a fixed Tailwind class anymore.
+  const gridStyle: CSSProperties = {
+    gridTemplateColumns: `minmax(0,1fr) ${columns.map((c) => c.width ?? "7rem").join(" ")} 5rem`,
+  };
+
   return (
     <div className="flex flex-col gap-3.5">
       {groups.map((group) => (
         <CollapsibleGroup key={group.key} label={group.label}>
           <div className="overflow-hidden rounded-lg border border-border bg-card">
             <div
-              className={cn(
-                "grid items-center border-b border-border-header bg-muted px-3.5 py-2 text-xs font-medium text-muted-foreground",
-                GRID_COLS,
-              )}
+              style={gridStyle}
+              className="grid items-center border-b border-border-header bg-muted px-3.5 py-2 text-xs font-medium text-muted-foreground"
             >
               <div>{nameHeader}</div>
-              {columns.map((col) => (
-                <div key={col.header}>{col.header}</div>
+              {columns.map((col, i) => (
+                <div key={`${col.header}-${i}`}>{col.header}</div>
               ))}
               <div className="text-right">Actions</div>
             </div>
@@ -60,14 +59,12 @@ export function GroupedTable<T extends { id: string }>({
               <Link
                 key={row.id}
                 href={hrefFor(row)}
-                className={cn(
-                  "grid items-center border-b border-border-row px-3.5 py-2.5 text-sm text-foreground last:border-b-0 hover:bg-muted/60",
-                  GRID_COLS,
-                )}
+                style={gridStyle}
+                className="grid items-center border-b border-border-row px-3.5 py-2.5 text-sm text-foreground last:border-b-0 hover:bg-muted/60"
               >
                 <div className="min-w-0 truncate font-medium">{nameRender(row)}</div>
-                {columns.map((col) => (
-                  <div key={col.header}>{col.render(row)}</div>
+                {columns.map((col, i) => (
+                  <div key={`${col.header}-${i}`}>{col.render(row)}</div>
                 ))}
                 <div className="text-right text-muted-foreground-placeholder">
                   <MoreHorizontal className="ml-auto size-4" />

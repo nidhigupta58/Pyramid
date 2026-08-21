@@ -76,6 +76,7 @@ export default async function ProjectDetailPage({
             { header: "Members", render: (task) => <MemberCell member={task.assignee} /> },
             {
               header: "Due Date",
+              width: "9rem",
               render: (task) => (
                 <span className="text-foreground/70">
                   {task.dueDate ? format(new Date(task.dueDate), "d MMM yyyy") : "—"}

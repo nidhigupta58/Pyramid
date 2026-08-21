@@ -14,6 +14,7 @@ import {
 import { BoardColumn } from "./board-column";
 import { useMoveTask } from "@/hooks/use-move-task";
 import { apiMutate } from "@/lib/api-client";
+import type { FieldsState } from "@/lib/fields";
 import type { BoardData, Status } from "@/lib/types";
 
 // Refs 02/12: the board only ever shows these four columns (no Backlog), unlike the wider
@@ -33,7 +34,15 @@ const collisionDetection: CollisionDetection = (args) => {
   return pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
 };
 
-export function BoardView({ workspaceSlug, initialData }: { workspaceSlug: string; initialData: BoardData }) {
+export function BoardView({
+  workspaceSlug,
+  initialData,
+  fields,
+}: {
+  workspaceSlug: string;
+  initialData: BoardData;
+  fields: FieldsState;
+}) {
   const queryKey = ["tasks", workspaceSlug, "board"] as const;
   const { data } = useQuery({
     queryKey,
@@ -90,6 +99,7 @@ export function BoardView({ workspaceSlug, initialData }: { workspaceSlug: strin
             label={label}
             tasks={data[status] ?? []}
             workspaceSlug={workspaceSlug}
+            fields={fields}
           />
         ))}
       </div>

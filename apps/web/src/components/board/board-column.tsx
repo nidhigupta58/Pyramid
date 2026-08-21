@@ -4,6 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { GripVertical, MoreHorizontal, Plus } from "lucide-react";
 import { TaskCard } from "./task-card";
+import type { FieldsState } from "@/lib/fields";
 import type { TaskListItem } from "@/lib/types";
 
 export function BoardColumn({
@@ -11,11 +12,13 @@ export function BoardColumn({
   label,
   tasks,
   workspaceSlug,
+  fields,
 }: {
   status: string;
   label: string;
   tasks: TaskListItem[];
   workspaceSlug: string;
+  fields: FieldsState;
 }) {
   // Droppable spans the whole column (not just the card list) so dropping in the empty space
   // below the last card still counts as "append to this column" rather than being a dead zone.
@@ -33,7 +36,7 @@ export function BoardColumn({
       <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-1 flex-col gap-2">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} workspaceSlug={workspaceSlug} />
+            <TaskCard key={task.id} task={task} workspaceSlug={workspaceSlug} fields={fields} />
           ))}
         </div>
       </SortableContext>

@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { WorkspaceGuard } from '../workspaces/guards/workspace.guard';
 import { WorkspaceContextInterceptor } from '../workspaces/interceptors/workspace-context.interceptor';
 import { ProjectsService } from './projects.service';
-import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { CreateProjectDto, ProjectQueryDto, UpdateProjectDto } from './dto/project.dto';
 
 @ApiTags('projects')
 @UseGuards(WorkspaceGuard)
@@ -13,8 +13,8 @@ export class ProjectsController {
   constructor(private readonly projects: ProjectsService) {}
 
   @Get()
-  findAll() {
-    return this.projects.findAll();
+  findAll(@Query() query: ProjectQueryDto) {
+    return this.projects.findAll(query);
   }
 
   @Post()

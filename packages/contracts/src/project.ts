@@ -10,5 +10,10 @@ export const createProjectSchema = z.object({
 
 export const updateProjectSchema = createProjectSchema.partial();
 
+export const projectQuerySchema = z.object({
+  q: z.string().max(200).optional(),
+});
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
+export type ProjectQuery = z.infer<typeof projectQuerySchema>;

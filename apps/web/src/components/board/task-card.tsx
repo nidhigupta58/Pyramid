@@ -8,9 +8,18 @@ import { MemberCell } from "@/components/member-cell";
 import { DueBadge } from "@/components/due-badge";
 import { Chip } from "@/components/chip";
 import { cn } from "@/lib/utils";
+import type { FieldsState } from "@/lib/fields";
 import type { TaskListItem } from "@/lib/types";
 
-export function TaskCard({ task, workspaceSlug }: { task: TaskListItem; workspaceSlug: string }) {
+export function TaskCard({
+  task,
+  workspaceSlug,
+  fields,
+}: {
+  task: TaskListItem;
+  workspaceSlug: string;
+  fields: FieldsState;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
 
   return (
@@ -30,15 +39,21 @@ export function TaskCard({ task, workspaceSlug }: { task: TaskListItem; workspac
         <MoreHorizontal className="size-3.5 shrink-0 text-muted-foreground-placeholder" />
       </div>
 
-      <div className="flex items-center justify-between gap-1.5">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <MemberCell member={task.assignee} className="size-3.5 text-[7px]" />
-          {task.assignee?.fullName && (
-            <span className="truncate text-xs text-foreground/70">{task.assignee.fullName}</span>
+      {(fields.members || fields.dueDate) && (
+        <div className="flex items-center justify-between gap-1.5">
+          {fields.members ? (
+            <div className="flex min-w-0 items-center gap-1.5">
+              <MemberCell member={task.assignee} className="size-3.5 text-[7px]" />
+              {task.assignee?.fullName && (
+                <span className="truncate text-xs text-foreground/70">{task.assignee.fullName}</span>
+              )}
+            </div>
+          ) : (
+            <div />
           )}
+          {fields.dueDate && task.dueDate && <DueBadge date={task.dueDate} />}
         </div>
-        {task.dueDate && <DueBadge date={task.dueDate} />}
-      </div>
+      )}
 
       {task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
