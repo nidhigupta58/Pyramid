@@ -36,7 +36,7 @@ export function TaskCard({
     >
       <div className="flex items-start gap-1.5">
         <div className="flex-1 text-sm font-medium leading-snug text-foreground">{task.title}</div>
-        <MoreHorizontal className="size-3.5 shrink-0 text-muted-foreground-placeholder" />
+        <MoreHorizontal className="size-3.5 shrink-0 text-muted-foreground-placeholder" aria-hidden="true" />
       </div>
 
       {(fields.members || fields.dueDate) && (

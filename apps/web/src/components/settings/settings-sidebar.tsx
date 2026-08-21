@@ -15,7 +15,7 @@ export function SettingsSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-[212px] shrink-0 flex-col gap-3 border-r border-border bg-sidebar p-3">
+    <div className="flex shrink-0 flex-col gap-3 border-b border-border bg-sidebar p-3 md:h-full md:w-[212px] md:border-r md:border-b-0">
       <Link
         href="/"
         className="flex items-center gap-1.5 px-1 text-sm text-muted-foreground hover:text-foreground"
@@ -24,7 +24,7 @@ export function SettingsSidebar() {
         Back to app
       </Link>
 
-      <div className="relative">
+      <div className="relative hidden md:block">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
         <input
           type="search"
@@ -33,7 +33,7 @@ export function SettingsSidebar() {
         />
       </div>
 
-      <nav className="flex flex-col gap-0.5">
+      <nav className="flex gap-0.5 md:flex-col">
         {NAV_ITEMS.map(({ label, segment, icon: Icon }) => {
           const href = `/settings/${segment}`;
           const isActive = pathname === href;

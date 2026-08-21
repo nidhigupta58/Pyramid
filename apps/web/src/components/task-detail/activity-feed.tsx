@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MoreHorizontal, Paperclip, Send, User } from "lucide-react";
 import { UserAvatar } from "@/components/user-avatar";
+import { StubAction } from "@/components/stub-action";
 import { apiMutate } from "@/lib/api-client";
 import type { CommentItem } from "@/lib/types";
 
@@ -42,8 +43,17 @@ function Composer({ placeholder, onSubmit }: { placeholder: string; onSubmit: (b
         placeholder={placeholder}
         className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground-placeholder"
       />
-      <Paperclip className="size-3.5 text-muted-foreground-placeholder" />
-      <button type="button" onClick={submit} disabled={submitting} aria-label="Send">
+      <StubAction
+        label="Attach file"
+        icon={<Paperclip className="size-3.5 text-muted-foreground-placeholder" />}
+      />
+      <button
+        type="button"
+        onClick={submit}
+        disabled={submitting}
+        aria-label="Send"
+        className="rounded outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      >
         <Send className="size-3.5 text-muted-foreground hover:text-foreground" />
       </button>
     </div>
@@ -88,8 +98,11 @@ export function ActivityFeed({
               <span className="text-sm font-semibold text-foreground">{comment.author.fullName}</span>
               <span className="text-xs text-muted-foreground-faint">{timeAgo(comment.createdAt)}</span>
               <div className="flex-1" />
-              <User className="size-3.5 text-muted-foreground-placeholder" />
-              <MoreHorizontal className="size-3.5 text-muted-foreground-placeholder" />
+              <StubAction label="Reassign" icon={<User className="size-3.5 text-muted-foreground-placeholder" />} />
+              <StubAction
+                label="Comment actions"
+                icon={<MoreHorizontal className="size-3.5 text-muted-foreground-placeholder" />}
+              />
             </div>
             <div className="text-sm text-foreground/80">{comment.body}</div>
           </div>

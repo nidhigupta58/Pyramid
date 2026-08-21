@@ -91,7 +91,7 @@ export function BoardView({
 
   return (
     <DndContext id="board-dnd" sensors={sensors} collisionDetection={collisionDetection} onDragEnd={handleDragEnd}>
-      <div className="flex min-w-fit gap-3.5 overflow-x-auto pb-2">
+      <div className="flex min-w-fit snap-x snap-proximity gap-3.5 overflow-x-auto pb-2">
         {BOARD_STATUSES.map(({ status, label }) => (
           <BoardColumn
             key={status}

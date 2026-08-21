@@ -30,7 +30,7 @@ export function DetailsPanel({ task, workspaceSlug }: { task: TaskDetail; worksp
         <PriorityMenu taskId={task.id} workspaceSlug={workspaceSlug} priority={task.priority}>
           <button
             type="button"
-            className={`flex items-center gap-1.5 rounded px-1 py-0.5 hover:bg-muted ${PRIORITY_CLASS[task.priority]}`}
+            className={`flex items-center gap-1.5 rounded px-1 py-0.5 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 ${PRIORITY_CLASS[task.priority]}`}
           >
             <SignalHigh className="size-3.5" />
             {PRIORITY_LABEL[task.priority]}
@@ -52,7 +52,10 @@ export function DetailsPanel({ task, workspaceSlug }: { task: TaskDetail; worksp
 
       <Row label="Dates">
         <DatePickerMenu taskId={task.id} workspaceSlug={workspaceSlug} dueDate={task.dueDate}>
-          <button type="button" className="flex items-center gap-1.5 rounded px-1 py-0.5 hover:bg-muted">
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded px-1 py-0.5 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50"
+          >
             <Calendar className="size-3.5 text-muted-foreground" />
             <span className={task.dueDate ? "text-foreground/80" : "text-muted-foreground-faint"}>
               {task.dueDate ? format(new Date(task.dueDate), "MMM d") : "Add dates"}

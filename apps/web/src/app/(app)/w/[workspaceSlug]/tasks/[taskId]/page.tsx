@@ -6,6 +6,7 @@ import { PriorityCell } from "@/components/priority-cell";
 import { MemberCell } from "@/components/member-cell";
 import { DueBadge } from "@/components/due-badge";
 import { Chip } from "@/components/chip";
+import { StubAction } from "@/components/stub-action";
 import { RailActions } from "@/components/task-detail/rail-actions";
 import { DetailsPanel } from "@/components/task-detail/details-panel";
 import { UpdatesPanel } from "@/components/task-detail/updates-panel";
@@ -23,7 +24,7 @@ export default async function TaskDetailPage({ params }: PageProps<"/w/[workspac
   return (
     <div className="flex flex-1 flex-col">
       <TopBar />
-      <div className="flex flex-1 gap-4 px-5 pb-6">
+      <div className="flex flex-1 flex-col gap-4 px-5 pb-6 md:flex-row">
         <div className="flex min-w-0 flex-1 flex-col gap-3.5">
           <div className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">{task.title}</h1>
@@ -55,10 +56,13 @@ export default async function TaskDetailPage({ params }: PageProps<"/w/[workspac
             </div>
             <div className="grid grid-cols-[78px_1fr] items-center text-sm">
               <div className="text-muted-foreground-faint">Resources</div>
-              <div className="flex items-center gap-1.5 text-muted-foreground-placeholder">
-                <Paperclip className="size-3.5" />
+              <StubAction
+                label="Add document or link"
+                icon={<Paperclip className="size-3.5" />}
+                className="text-muted-foreground-placeholder"
+              >
                 Add document or link…
-              </div>
+              </StubAction>
             </div>
           </div>
 
@@ -83,7 +87,7 @@ export default async function TaskDetailPage({ params }: PageProps<"/w/[workspac
           <ActivityFeed taskId={task.id} workspaceSlug={workspaceSlug} comments={task.comments} />
         </div>
 
-        <div className="flex w-[250px] shrink-0 flex-col gap-3">
+        <div className="flex w-full flex-col gap-3 md:w-[250px] md:shrink-0">
           <RailActions />
           <DetailsPanel task={task} workspaceSlug={workspaceSlug} />
           <UpdatesPanel activity={task.activity} />
