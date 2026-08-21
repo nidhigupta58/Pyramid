@@ -143,7 +143,7 @@
   --muted: #131313;
   --muted-foreground: #a1a1aa;
   --muted-foreground-faint: #8b8b93;
-  --muted-foreground-placeholder: #52525b;
+  --muted-foreground-placeholder: #7c7c86;
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
