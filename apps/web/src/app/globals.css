@@ -1,26 +1,272 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-border-row: var(--border-row);
+  --color-border-header: var(--border-header);
+  --color-border-control: var(--border-control);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground-faint: var(--muted-foreground-faint);
+  --color-muted-foreground-placeholder: var(--muted-foreground-placeholder);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-priority-urgent: var(--priority-urgent);
+  --color-priority-high: var(--priority-high);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-low: var(--priority-low);
+  --color-priority-none: var(--priority-none);
+  --color-status-backlog: var(--status-backlog);
+  --color-due-bg: var(--due-bg);
+  --color-due-border: var(--due-border);
+  --color-due-fg: var(--due-fg);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*
+ * Light palette — read off the reference screenshots (IMPLEMENTATION_PLAN.md §3.1).
+ * These land almost exactly on shadcn `neutral`, so card/popover/secondary/chart/destructive
+ * are left at the shadcn-generated values; only the tokens the refs actually specify are set.
+ */
+:root {
+  --background: #ffffff;
+  --foreground: #18181b;
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #101010;
+  --primary-hover: #282828;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: #f7f7f8;
+  --muted-foreground: #71717a;
+  --muted-foreground-faint: #8b8b93;
+  --muted-foreground-placeholder: #b4b4bb;
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #ececea;
+  --border-row: #f4f4f2;
+  --border-header: #f0f0ee;
+  --border-control: #e8e8e6;
+  --input: oklch(0.922 0 0);
+  --ring: #101010;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: #fbfbfa;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #101010;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #101010;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #ececea;
+  --sidebar-ring: #101010;
+
+  --priority-urgent: #e5484d;
+  --priority-high: #e5484d;
+  --priority-medium: #f5a524;
+  --priority-low: #a1a1aa;
+  --priority-none: #a1a1aa;
+  --status-backlog: #f5a524;
+  --due-bg: #fff1f2;
+  --due-border: #fde1e3;
+  --due-fg: #e5484d;
+
+  --gradient-avatar: radial-gradient(circle at 30% 25%, #a78bfa, #ec4899 48%, #1e3a8a);
+}
+
+/*
+ * Dark palette — no reference to match (plan §3.3): our own design, derived from the same
+ * neutral scale, held to WCAG AA. Three inversions the plan calls out as easy to miss:
+ * --primary flips to near-white (black pills would be invisible on #0a0a0a), the semantic
+ * priority/status colours lighten for contrast, and the due badge goes translucent instead
+ * of solid-tinted.
+ */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #fafafa;
+  --primary-hover: #e4e4e7;
+  --primary-foreground: #101010;
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: #131313;
+  --muted-foreground: #a1a1aa;
+  --muted-foreground-faint: #8b8b93;
+  --muted-foreground-placeholder: #52525b;
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #232323;
+  --border-row: #1c1c1c;
+  --border-header: #1a1a1a;
+  --border-control: #272727;
+  --input: oklch(1 0 0 / 15%);
+  --ring: #fafafa;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: #0f0f0f;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #101010;
+  --sidebar-accent: #fafafa;
+  --sidebar-accent-foreground: #101010;
+  --sidebar-border: #232323;
+  --sidebar-ring: #fafafa;
+
+  --priority-urgent: #ff6369;
+  --priority-high: #ff6369;
+  --priority-medium: #ffb224;
+  --priority-low: #8b8b93;
+  --priority-none: #8b8b93;
+  --status-backlog: #ffb224;
+  --due-bg: rgba(229, 72, 77, 0.12);
+  --due-border: rgba(229, 72, 77, 0.28);
+  --due-fg: #ff6369;
+}
+
+/*
+ * Colour Mode (plan §3.2): six accents, independent of light/dark, overriding
+ * --primary/--ring/--sidebar-accent. Selected via data-accent="..." on <html>.
+ * Dark variants are lightened for AA against #0a0a0a — our design, no reference.
+ * "Black" is the monochrome accent: it equals the neutral --primary in both modes,
+ * so in dark mode it resolves to near-white (same invisible-button rule as above).
+ */
+[data-accent="amber"] {
+  --primary: #f59e0b;
+  --ring: #f59e0b;
+  --sidebar-accent: #f59e0b;
+  --sidebar-accent-foreground: #101010;
+}
+[data-accent="blue"] {
+  --primary: #7c3aed;
+  --ring: #7c3aed;
+  --sidebar-accent: #7c3aed;
+  --sidebar-accent-foreground: #ffffff;
+}
+[data-accent="pink"] {
+  --primary: #ec4899;
+  --ring: #ec4899;
+  --sidebar-accent: #ec4899;
+  --sidebar-accent-foreground: #ffffff;
+}
+[data-accent="rose"] {
+  --primary: #e11d48;
+  --ring: #e11d48;
+  --sidebar-accent: #e11d48;
+  --sidebar-accent-foreground: #ffffff;
+}
+[data-accent="emerald"] {
+  --primary: #10b981;
+  --ring: #10b981;
+  --sidebar-accent: #10b981;
+  --sidebar-accent-foreground: #101010;
+}
+[data-accent="black"] {
+  --primary: #101010;
+  --ring: #101010;
+  --sidebar-accent: #101010;
+  --sidebar-accent-foreground: #ffffff;
+}
+
+.dark[data-accent="amber"] {
+  --primary: #fbbf24;
+  --ring: #fbbf24;
+  --sidebar-accent: #fbbf24;
+  --sidebar-accent-foreground: #101010;
+}
+.dark[data-accent="blue"] {
+  --primary: #a78bfa;
+  --ring: #a78bfa;
+  --sidebar-accent: #a78bfa;
+  --sidebar-accent-foreground: #101010;
+}
+.dark[data-accent="pink"] {
+  --primary: #f472b6;
+  --ring: #f472b6;
+  --sidebar-accent: #f472b6;
+  --sidebar-accent-foreground: #101010;
+}
+.dark[data-accent="rose"] {
+  --primary: #fb7185;
+  --ring: #fb7185;
+  --sidebar-accent: #fb7185;
+  --sidebar-accent-foreground: #101010;
+}
+.dark[data-accent="emerald"] {
+  --primary: #34d399;
+  --ring: #34d399;
+  --sidebar-accent: #34d399;
+  --sidebar-accent-foreground: #101010;
+}
+.dark[data-accent="black"] {
+  --primary: #fafafa;
+  --ring: #fafafa;
+  --sidebar-accent: #fafafa;
+  --sidebar-accent-foreground: #101010;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
