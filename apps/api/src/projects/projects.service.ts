@@ -1,43 +1,43 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { TenantPrismaService } from '../prisma/tenant-prisma.service';
 import { midpointPosition } from '../common/position.util';
-import { CreateProjectDto, ProjectQueryDto, UpdateProjectDto } from './dto/project.dto';
+import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly tenantPrisma: TenantPrismaService) {}
 
-  findAll({ workspaceId }: ProjectQueryDto) {
-    return this.prisma.project.findMany({
-      where: { workspaceId },
-      orderBy: { position: 'asc' },
-    });
+  private get db() {
+    return this.tenantPrisma.client;
+  }
+
+  findAll() {
+    return this.db.project.findMany({ orderBy: { position: 'asc' } });
   }
 
   async create(dto: CreateProjectDto) {
-    const last = await this.prisma.project.findFirst({
-      where: { workspaceId: dto.workspaceId },
+    const last = await this.db.project.findFirst({
       orderBy: { position: 'desc' },
       select: { position: true },
     });
-
-    return this.prisma.project.create({
-      data: { ...dto, position: midpointPosition(last?.position ?? null, null) },
+    return this.db.project.create({
+      // workspaceId is a placeholder here — workspaceScopingExtension overwrites it before the query runs.
+      data: { ...dto, position: midpointPosition(last?.position ?? null, null), workspaceId: '' },
     });
   }
 
   async update(id: string, dto: UpdateProjectDto) {
     await this.findOneOrThrow(id);
-    return this.prisma.project.update({ where: { id }, data: dto });
+    return this.db.project.update({ where: { id }, data: dto });
   }
 
   async remove(id: string) {
     await this.findOneOrThrow(id);
-    await this.prisma.project.delete({ where: { id } });
+    await this.db.project.delete({ where: { id } });
   }
 
   private async findOneOrThrow(id: string) {
-    const project = await this.prisma.project.findUnique({ where: { id } });
+    const project = await this.db.project.findUnique({ where: { id } });
     if (!project) throw new NotFoundException(`Project ${id} not found`);
     return project;
   }

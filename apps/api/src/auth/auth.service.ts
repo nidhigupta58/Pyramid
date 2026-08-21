@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { slugify } from '../common/slug.util';
 import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from './auth.constants';
 import type { GoogleProfile } from './strategies/google.strategy';
 
@@ -46,7 +47,7 @@ export class AuthService {
     return this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({ data: userData });
       const workspace = await tx.workspace.create({
-        data: { name: workspaceName, slug: `ws-${randomUUID()}` },
+        data: { name: workspaceName, slug: slugify(workspaceName) },
       });
       await tx.membership.create({ data: { userId: user.id, workspaceId: workspace.id, role: 'OWNER' } });
       await tx.userPreference.create({

@@ -1,10 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { WorkspaceGuard } from '../workspaces/guards/workspace.guard';
+import { WorkspaceContextInterceptor } from '../workspaces/interceptors/workspace-context.interceptor';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, MoveTaskDto, TaskQueryDto, UpdateTaskDto } from './dto/task.dto';
 
 @ApiTags('tasks')
-@Controller('tasks')
+@UseGuards(WorkspaceGuard)
+@UseInterceptors(WorkspaceContextInterceptor)
+@Controller('workspaces/:workspaceSlug/tasks')
 export class TasksController {
   constructor(private readonly tasks: TasksService) {}
 

@@ -2,7 +2,6 @@ import { z } from "zod";
 import { priorityEnum, statusEnum } from "./common";
 
 export const createTaskSchema = z.object({
-  workspaceId: z.string().min(1),
   projectId: z.string().min(1).nullish(),
   parentId: z.string().min(1).nullish(),
   title: z.string().min(1).max(500),
@@ -16,9 +15,7 @@ export const createTaskSchema = z.object({
   tags: z.array(z.string().max(60)).default([]),
 });
 
-export const updateTaskSchema = createTaskSchema
-  .omit({ workspaceId: true })
-  .partial();
+export const updateTaskSchema = createTaskSchema.partial();
 
 export const moveTaskSchema = z.object({
   status: statusEnum,
@@ -27,7 +24,6 @@ export const moveTaskSchema = z.object({
 });
 
 export const taskQuerySchema = z.object({
-  workspaceId: z.string().min(1),
   projectId: z.string().min(1).optional(),
   status: statusEnum.optional(),
   q: z.string().max(200).optional(),
