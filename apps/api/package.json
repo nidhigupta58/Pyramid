@@ -40,6 +40,7 @@
     "zod": "4.4.3",
     "@pyramid/contracts": "workspace:*",
     "dotenv": "17.2.3",
+    "helmet": "8.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
