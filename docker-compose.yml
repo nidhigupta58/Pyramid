@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pyramid
+      POSTGRES_PASSWORD: pyramid
+      POSTGRES_DB: pyramid
+    ports:
+      - "5432:5432"
+    volumes:
+      - pyramid_postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pyramid_postgres_data:

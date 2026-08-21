@@ -1,0 +1,14 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - prisma
+  - "@scarf/scarf"
+  - unrs-resolver
+allowBuilds:
+  '@prisma/engines': set this to true or false
+  '@scarf/scarf': set this to true or false
+  prisma: set this to true or false
+  unrs-resolver: set this to true or false
