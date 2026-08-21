@@ -1,7 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { TenantPrismaService } from '../prisma/tenant-prisma.service';
 import { midpointPosition } from '../common/position.util';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+
+const LEAD_INCLUDE = {
+  lead: { select: { id: true, fullName: true, avatarUrl: true } },
+} satisfies Prisma.ProjectInclude;
 
 @Injectable()
 export class ProjectsService {
@@ -12,7 +17,7 @@ export class ProjectsService {
   }
 
   findAll() {
-    return this.db.project.findMany({ orderBy: { position: 'asc' } });
+    return this.db.project.findMany({ orderBy: { position: 'asc' }, include: LEAD_INCLUDE });
   }
 
   async create(dto: CreateProjectDto) {

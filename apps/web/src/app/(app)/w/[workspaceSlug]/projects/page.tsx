@@ -1,36 +1,41 @@
-import Link from "next/link";
+import { format } from "date-fns";
 import { apiFetch } from "@/lib/api";
 import { TopBar } from "@/components/shell/top-bar";
-
-interface ProjectSummary {
-  id: string;
-  name: string;
-  priority: string;
-  dueDate: string | null;
-}
+import { GroupedTable, type GroupedTableGroup } from "@/components/grouped-table";
+import { PriorityCell } from "@/components/priority-cell";
+import { MemberCell } from "@/components/member-cell";
+import type { ProjectListItem } from "@/lib/types";
 
 export default async function ProjectsPage({ params }: PageProps<"/w/[workspaceSlug]/projects">) {
   const { workspaceSlug } = await params;
-  const projects = await apiFetch<ProjectSummary[]>(`/workspaces/${workspaceSlug}/projects`);
+  const projects = await apiFetch<ProjectListItem[]>(`/workspaces/${workspaceSlug}/projects`);
+
+  const groups: GroupedTableGroup<ProjectListItem>[] = [{ key: "all", label: "All Projects", rows: projects }];
 
   return (
     <div className="flex flex-1 flex-col">
       <TopBar />
-      <div className="flex flex-1 flex-col gap-6 px-6 pb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
-        {/* Full GroupedTable (priority/lead/due date columns) lands in P7 — this just proves the pipe. */}
-        <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
-          {projects.map((project) => (
-            <Link
-              key={project.id}
-              href={`/w/${workspaceSlug}/projects/${project.id}`}
-              className="flex items-center justify-between p-3 text-sm hover:bg-muted"
-            >
-              <span>{project.name}</span>
-              <span className="text-xs text-muted-foreground">{project.priority}</span>
-            </Link>
-          ))}
-        </div>
+      <div className="flex flex-1 flex-col gap-4 px-5 pb-5">
+        <h1 className="text-base font-semibold tracking-tight">Projects</h1>
+        <GroupedTable
+          groups={groups}
+          nameHeader="Projects"
+          nameRender={(project) => project.name}
+          hrefFor={(project) => `/w/${workspaceSlug}/projects/${project.id}`}
+          addLabel="Add Projects"
+          columns={[
+            { header: "Priority", render: (project) => <PriorityCell priority={project.priority} /> },
+            { header: "Lead", render: (project) => <MemberCell member={project.lead} /> },
+            {
+              header: "Due Date",
+              render: (project) => (
+                <span className="text-foreground/70">
+                  {project.dueDate ? format(new Date(project.dueDate), "d MMM yyyy") : "—"}
+                </span>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

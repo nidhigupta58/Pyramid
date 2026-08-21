@@ -4,8 +4,16 @@ import { TenantPrismaService } from '../prisma/tenant-prisma.service';
 import { midpointPosition, needsRebalance } from '../common/position.util';
 import { CreateTaskDto, MoveTaskDto, TaskQueryDto, UpdateTaskDto } from './dto/task.dto';
 
+const MEMBER_SELECT = { id: true, fullName: true, avatarUrl: true } satisfies Prisma.UserSelect;
+
+const LIST_INCLUDE = {
+  assignee: { select: MEMBER_SELECT },
+} satisfies Prisma.TaskInclude;
+
 const DETAIL_INCLUDE = {
-  subtasks: { orderBy: { position: 'asc' } },
+  ...LIST_INCLUDE,
+  reporter: { select: MEMBER_SELECT },
+  subtasks: { orderBy: { position: 'asc' }, include: LIST_INCLUDE },
   labels: { include: { label: true } },
   comments: { orderBy: { createdAt: 'asc' } },
   activity: { orderBy: { createdAt: 'asc' } },
@@ -26,7 +34,7 @@ export class TasksService {
       ...(query.status && { status: query.status }),
       ...(query.q && { title: { contains: query.q, mode: 'insensitive' } }),
     };
-    const tasks = await this.db.task.findMany({ where, orderBy: { position: 'asc' } });
+    const tasks = await this.db.task.findMany({ where, orderBy: { position: 'asc' }, include: LIST_INCLUDE });
 
     if (query.groupBy !== 'status') return tasks;
 

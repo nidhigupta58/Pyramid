@@ -1,45 +1,54 @@
-import Link from "next/link";
+import { format } from "date-fns";
 import { apiFetch } from "@/lib/api";
 import { TopBar } from "@/components/shell/top-bar";
+import { GroupedTable, type GroupedTableGroup } from "@/components/grouped-table";
+import { PriorityCell } from "@/components/priority-cell";
+import { MemberCell } from "@/components/member-cell";
+import type { Status, TaskListItem } from "@/lib/types";
 
-interface TaskSummary {
-  id: string;
-  title: string;
-  status: string;
-}
+// Refs 04/05: the List view only ever shows these three groups, unlike the board's four/five.
+const LIST_STATUSES: { status: Status; label: string }[] = [
+  { status: "TODO", label: "To Do" },
+  { status: "DOING", label: "Doing" },
+  { status: "COMPLETED", label: "Completed" },
+];
 
 export default async function TasksPage({ params }: PageProps<"/w/[workspaceSlug]/tasks">) {
   const { workspaceSlug } = await params;
-  const grouped = await apiFetch<Record<string, TaskSummary[]>>(
+  const grouped = await apiFetch<Record<Status, TaskListItem[]>>(
     `/workspaces/${workspaceSlug}/tasks?groupBy=status`,
   );
+
+  const groups: GroupedTableGroup<TaskListItem>[] = LIST_STATUSES.map(({ status, label }) => ({
+    key: status,
+    label,
+    rows: grouped[status] ?? [],
+  }));
 
   return (
     <div className="flex flex-1 flex-col">
       <TopBar />
-      <div className="flex flex-1 flex-col gap-6 px-6 pb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Tasks</h1>
-        {/* Board (P8) and List (P7) views land here — this just proves the pipe end to end. */}
-        <div className="flex gap-4 overflow-x-auto">
-          {Object.entries(grouped).map(([status, tasks]) => (
-            <div key={status} className="w-64 shrink-0 rounded-lg border border-border p-3">
-              <div className="mb-2 text-xs font-medium text-muted-foreground">
-                {status} ({tasks.length})
-              </div>
-              <div className="flex flex-col gap-2">
-                {tasks.map((task) => (
-                  <Link
-                    key={task.id}
-                    href={`/w/${workspaceSlug}/tasks/${task.id}`}
-                    className="rounded-md border border-border bg-card p-2 text-sm hover:bg-muted"
-                  >
-                    {task.title}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="flex flex-1 flex-col gap-4 px-5 pb-5">
+        <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
+        <GroupedTable
+          groups={groups}
+          nameHeader="Task"
+          nameRender={(task) => task.title}
+          hrefFor={(task) => `/w/${workspaceSlug}/tasks/${task.id}`}
+          addLabel="Add Task"
+          columns={[
+            { header: "Priority", render: (task) => <PriorityCell priority={task.priority} /> },
+            { header: "Members", render: (task) => <MemberCell member={task.assignee} /> },
+            {
+              header: "Due Date",
+              render: (task) => (
+                <span className="text-foreground/70">
+                  {task.dueDate ? format(new Date(task.dueDate), "d MMM yyyy") : "—"}
+                </span>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

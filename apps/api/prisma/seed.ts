@@ -11,9 +11,9 @@ const WORKSPACE_SLUG = "dexter";
 // Reproduces `rowSet()` in Pyramid Task App.dc.html — the same 3-item pattern
 // backs the List groups, the Projects page, and every task's subtask table.
 const ROW_PATTERN = [
-  { priority: Priority.HIGH, dueDate: new Date("2026-09-12"), hasMember: "avatar" },
-  { priority: Priority.LOW, dueDate: new Date("2026-09-15"), hasMember: "initials" },
-  { priority: Priority.MEDIUM, dueDate: new Date("2026-09-18"), hasMember: "none" },
+  { priority: Priority.HIGH, dueDate: new Date("2026-09-12") },
+  { priority: Priority.LOW, dueDate: new Date("2026-09-15") },
+  { priority: Priority.MEDIUM, dueDate: new Date("2026-09-18") },
 ] as const;
 
 const BOARD_COLUMNS: { status: Status; cards: { title: string; who: string; due: string; tags: string[] }[] }[] = [
@@ -151,7 +151,10 @@ async function main() {
   }
   if (!writeApiDocsTask) throw new Error("seed: Write API Documentation card missing from BOARD_COLUMNS");
 
-  // List (refs 04, 05, 09): each status group repeats the same 3 named rows, linked to their project.
+  // List (refs 04, 05, 09): each status group repeats the same 3 named rows, linked to their
+  // project. Members column alternates assigned/assigned/unassigned, same convention as the
+  // subtasks table below (rowSet's avatar/initials/plus pattern).
+  const rowAssignees = [teamUsers["Admin"].id, teamUsers["QA Team"].id, null];
   for (const status of LIST_STATUSES) {
     for (const [i, project] of projects.entries()) {
       await prisma.task.create({
@@ -162,6 +165,7 @@ async function main() {
           status,
           priority: ROW_PATTERN[i].priority,
           dueDate: ROW_PATTERN[i].dueDate,
+          assigneeId: rowAssignees[i],
           position: i,
         },
       });

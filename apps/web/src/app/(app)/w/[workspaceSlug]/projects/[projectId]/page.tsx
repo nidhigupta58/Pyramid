@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { format } from "date-fns";
 import { apiFetch } from "@/lib/api";
 import { TopBar } from "@/components/shell/top-bar";
+import { GroupedTable, type GroupedTableGroup } from "@/components/grouped-table";
+import { PriorityCell } from "@/components/priority-cell";
+import { MemberCell } from "@/components/member-cell";
+import type { ProjectListItem, Status, TaskListItem } from "@/lib/types";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,16 +16,11 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-interface ProjectSummary {
-  id: string;
-  name: string;
-}
-
-interface TaskSummary {
-  id: string;
-  title: string;
-  status: string;
-}
+const LIST_STATUSES: { status: Status; label: string }[] = [
+  { status: "TODO", label: "To Do" },
+  { status: "DOING", label: "Doing" },
+  { status: "COMPLETED", label: "Completed" },
+];
 
 // No GET /projects/:id in the API surface (plan §5) — the list is small enough per workspace
 // that finding the project by id from it is the intended pattern, not a missing endpoint.
@@ -28,13 +28,21 @@ export default async function ProjectDetailPage({
   params,
 }: PageProps<"/w/[workspaceSlug]/projects/[projectId]">) {
   const { workspaceSlug, projectId } = await params;
-  const [projects, tasks] = await Promise.all([
-    apiFetch<ProjectSummary[]>(`/workspaces/${workspaceSlug}/projects`),
-    apiFetch<TaskSummary[]>(`/workspaces/${workspaceSlug}/tasks?projectId=${projectId}`),
+  const [projects, grouped] = await Promise.all([
+    apiFetch<ProjectListItem[]>(`/workspaces/${workspaceSlug}/projects`),
+    apiFetch<Record<Status, TaskListItem[]>>(
+      `/workspaces/${workspaceSlug}/tasks?projectId=${projectId}&groupBy=status`,
+    ),
   ]);
 
   const project = projects.find((p) => p.id === projectId);
   if (!project) notFound();
+
+  const groups: GroupedTableGroup<TaskListItem>[] = LIST_STATUSES.map(({ status, label }) => ({
+    key: status,
+    label,
+    rows: grouped[status] ?? [],
+  }));
 
   return (
     <div className="flex flex-1 flex-col">
@@ -55,20 +63,27 @@ export default async function ProjectDetailPage({
           </Breadcrumb>
         }
       />
-      <div className="flex flex-1 flex-col gap-6 px-6 pb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Tasks</h1>
-        <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
-          {tasks.map((task) => (
-            <Link
-              key={task.id}
-              href={`/w/${workspaceSlug}/tasks/${task.id}`}
-              className="flex items-center justify-between p-3 text-sm hover:bg-muted"
-            >
-              <span>{task.title}</span>
-              <span className="text-xs text-muted-foreground">{task.status}</span>
-            </Link>
-          ))}
-        </div>
+      <div className="flex flex-1 flex-col gap-4 px-5 pb-5">
+        <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
+        <GroupedTable
+          groups={groups}
+          nameHeader="Task"
+          nameRender={(task) => task.title}
+          hrefFor={(task) => `/w/${workspaceSlug}/tasks/${task.id}`}
+          addLabel="Add Task"
+          columns={[
+            { header: "Priority", render: (task) => <PriorityCell priority={task.priority} /> },
+            { header: "Members", render: (task) => <MemberCell member={task.assignee} /> },
+            {
+              header: "Due Date",
+              render: (task) => (
+                <span className="text-foreground/70">
+                  {task.dueDate ? format(new Date(task.dueDate), "d MMM yyyy") : "—"}
+                </span>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );
