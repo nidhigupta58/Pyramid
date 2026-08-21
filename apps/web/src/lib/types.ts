@@ -14,7 +14,10 @@ export interface TaskListItem {
   priority: Priority;
   dueDate: string | null;
   assignee: MemberSummary | null;
+  tags: string[];
 }
+
+export type BoardData = Record<Status, TaskListItem[]>;
 
 export interface ProjectListItem {
   id: string;

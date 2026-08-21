@@ -7,6 +7,7 @@ import { AccentProvider } from "@/components/providers/accent-provider";
 import { DEFAULT_ACCENT, isAccent } from "@/lib/accent";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/components/providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,10 +41,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ThemeProvider defaultTheme={theme}>
           <AccentProvider initialAccent={accent}>
-            <TooltipProvider>
-              {children}
-              <Toaster />
-            </TooltipProvider>
+            <QueryProvider>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+              </TooltipProvider>
+            </QueryProvider>
           </AccentProvider>
         </ThemeProvider>
       </body>
