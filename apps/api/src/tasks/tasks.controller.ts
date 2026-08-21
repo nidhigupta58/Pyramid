@@ -1,9 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import type { User } from '@prisma/client';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { WorkspaceGuard } from '../workspaces/guards/workspace.guard';
 import { WorkspaceContextInterceptor } from '../workspaces/interceptors/workspace-context.interceptor';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto, MoveTaskDto, TaskQueryDto, UpdateTaskDto } from './dto/task.dto';
+import { CreateCommentDto, CreateTaskDto, MoveTaskDto, TaskQueryDto, UpdateTaskDto } from './dto/task.dto';
 
 @ApiTags('tasks')
 @UseGuards(WorkspaceGuard)
@@ -40,5 +42,10 @@ export class TasksController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.tasks.remove(id);
+  }
+
+  @Post(':id/comments')
+  addComment(@Param('id') id: string, @CurrentUser() user: User, @Body() dto: CreateCommentDto) {
+    return this.tasks.addComment(id, user.id, dto);
   }
 }

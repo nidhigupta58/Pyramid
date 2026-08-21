@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Status, type Task } from '@prisma/client';
 import { TenantPrismaService } from '../prisma/tenant-prisma.service';
 import { midpointPosition, needsRebalance } from '../common/position.util';
-import { CreateTaskDto, MoveTaskDto, TaskQueryDto, UpdateTaskDto } from './dto/task.dto';
+import { CreateCommentDto, CreateTaskDto, MoveTaskDto, TaskQueryDto, UpdateTaskDto } from './dto/task.dto';
 
 const MEMBER_SELECT = { id: true, fullName: true, avatarUrl: true } satisfies Prisma.UserSelect;
 
@@ -15,8 +15,8 @@ const DETAIL_INCLUDE = {
   reporter: { select: MEMBER_SELECT },
   subtasks: { orderBy: { position: 'asc' }, include: LIST_INCLUDE },
   labels: { include: { label: true } },
-  comments: { orderBy: { createdAt: 'asc' } },
-  activity: { orderBy: { createdAt: 'asc' } },
+  comments: { orderBy: { createdAt: 'asc' }, include: { author: { select: MEMBER_SELECT } } },
+  activity: { orderBy: { createdAt: 'asc' }, include: { actor: { select: MEMBER_SELECT } } },
 } satisfies Prisma.TaskInclude;
 
 @Injectable()
@@ -61,6 +61,15 @@ export class TasksService {
   async remove(id: string) {
     await this.findOneOrThrow(id);
     await this.db.task.delete({ where: { id } });
+  }
+
+  /** Comment isn't a tenant-scoped model itself — findOneOrThrow on its parent task is the boundary check. */
+  async addComment(taskId: string, authorId: string, dto: CreateCommentDto) {
+    await this.findOneOrThrow(taskId);
+    return this.db.comment.create({
+      data: { taskId, authorId, body: dto.body },
+      include: { author: { select: MEMBER_SELECT } },
+    });
   }
 
   /** Drag-and-drop reorder: place the task between `beforeId` and `afterId`, rebalancing the column if the gap has collapsed. */

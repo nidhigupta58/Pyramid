@@ -26,3 +26,39 @@ export interface ProjectListItem {
   dueDate: string | null;
   lead: MemberSummary | null;
 }
+
+export interface LabelSummary {
+  labelId: string;
+  label: { id: string; name: string; color: string | null };
+}
+
+export interface CommentItem {
+  id: string;
+  body: string;
+  createdAt: string;
+  author: MemberSummary;
+}
+
+export interface ActivityItem {
+  id: string;
+  verb: string;
+  meta: Record<string, string>;
+  createdAt: string;
+  actor: MemberSummary;
+}
+
+export interface TaskDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  status: Status;
+  priority: Priority;
+  dueDate: string | null;
+  team: string | null;
+  assignee: MemberSummary | null;
+  reporter: MemberSummary | null;
+  subtasks: TaskListItem[];
+  labels: LabelSummary[];
+  comments: CommentItem[];
+  activity: ActivityItem[];
+}
