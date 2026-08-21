@@ -1,5 +1,29 @@
 export type Priority = "NO_PRIORITY" | "URGENT" | "HIGH" | "MEDIUM" | "LOW";
 export type Status = "TODO" | "DOING" | "COMPLETED" | "ON_HOLD" | "BACKLOG";
+export type Role = "OWNER" | "ADMIN" | "MEMBER";
+
+export interface CurrentUser {
+  id: string;
+  email: string;
+  fullName: string | null;
+  title: string | null;
+  username: string | null;
+  avatarUrl: string | null;
+}
+
+export interface Workspace {
+  id: string;
+  slug: string;
+  name: string;
+}
+
+export interface WorkspaceMember {
+  userId: string;
+  workspaceId: string;
+  role: Role;
+  joinedAt: string;
+  user: CurrentUser;
+}
 
 export interface MemberSummary {
   id: string;

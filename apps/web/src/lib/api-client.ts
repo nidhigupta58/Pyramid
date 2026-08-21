@@ -39,6 +39,8 @@ export async function apiMutate<T>(path: string, init: RequestInit = {}, _retrie
     throw new ApiError(res.status, problem?.detail ?? res.statusText);
   }
 
-  if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
+  // Some routes (e.g. remove-member, leave-workspace) return 200 with no body rather than 204 —
+  // res.json() throws on an empty body, so check for content before parsing.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }

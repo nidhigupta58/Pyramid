@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Triangle } from "lucide-react";
 
@@ -9,7 +9,16 @@ import { Triangle } from "lucide-react";
 // values per the plan (§9 P6) — everything else (font sizes, colours, radii) goes through the
 // §3 scale mapping / design tokens rather than the artboard's raw px.
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginCard />
+    </Suspense>
+  );
+}
+
+function LoginCard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
   async function continueAsGuest() {
@@ -17,7 +26,7 @@ export default function LoginPage() {
     try {
       const res = await fetch("/api/v1/auth/guest", { method: "POST" });
       if (!res.ok) throw new Error("Guest login failed");
-      router.push("/");
+      router.push(searchParams.get("next") ?? "/");
       router.refresh();
     } catch {
       toast.error("Couldn't start a guest session. Try again.");

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Moon, Settings, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAccent } from "@/components/providers/accent-provider";
-import { ACCENTS, type Accent } from "@/lib/accent";
+import { ACCENT_SWATCH, ACCENTS } from "@/lib/accent";
 import { UserAvatar } from "@/components/user-avatar";
 import {
   DropdownMenu,
@@ -19,15 +19,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-// "Black" is the monochrome accent (no swatch dot in the refs) — everything else gets one.
-const ACCENT_SWATCH: Partial<Record<Accent, string>> = {
-  amber: "#f59e0b",
-  blue: "#7c3aed",
-  pink: "#ec4899",
-  rose: "#e11d48",
-  emerald: "#10b981",
-};
 
 interface WorkspaceSummary {
   id: string;
