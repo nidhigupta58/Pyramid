@@ -3,7 +3,8 @@
 A full-stack task & project workspace — built for the AbleSpace full-stack developer
 assessment (Part 1), pixel-matched against the supplied Figma reference.
 
-**Live demo:** _pending deployment_
+**Live demo:** https://pyramid-web-eta.vercel.app
+**API:** https://pyramid-api-snowy.vercel.app/api/v1
 **Design reference:** Figma — `Assessment-Task`
 
 ## Stack
@@ -111,6 +112,24 @@ pnpm dev
 - API: http://localhost:3001/api/v1 (Swagger at `/api/docs`)
 
 Click **Continue as Guest** on the login screen — no credentials needed.
+
+## Deployment
+
+Both apps deploy to Vercel as separate projects from this one monorepo (`apps/web`, `apps/api`
+as their respective root directories), with Postgres on Neon (provisioned via Vercel's Neon
+marketplace integration).
+
+- **API** — `apps/api/api/index.ts` wraps the NestJS app as a plain Vercel Node function; the
+  underlying Express app is created once at module scope and reused across warm invocations.
+- **Web** — `next.config.ts` rewrites `/api/*` to the API deployment, so the browser only ever
+  sees one origin and the httpOnly JWT cookie stays first-party (no CORS, no cross-site cookie
+  gymnastics).
+- **Database** — Neon Postgres, connected via `@prisma/adapter-pg` against Neon's pooled
+  endpoint (`DATABASE_URL`) for runtime queries and the unpooled endpoint (`DIRECT_URL`) for
+  migrations.
+- Migrations (`prisma migrate deploy`) and the seed are run once against the production
+  database as a manual step, not on every cold start, so concurrent invocations can't race a
+  schema change.
 
 ## Visual QA
 
