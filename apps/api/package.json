@@ -36,7 +36,6 @@
     "@prisma/adapter-pg": "7.9.1",
     "@prisma/client": "7.9.1",
     "@pyramid/contracts": "workspace:*",
-    "@vendia/serverless-express": "^4.12.6",
     "cookie-parser": "1.4.7",
     "dotenv": "17.2.3",
     "express": "^5.2.1",
