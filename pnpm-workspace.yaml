@@ -2,13 +2,12 @@ packages:
   - "apps/*"
   - "packages/*"
 
+allowBuilds:
+  esbuild: true
+
 onlyBuiltDependencies:
   - "@prisma/engines"
   - prisma
   - "@scarf/scarf"
+  - esbuild
   - unrs-resolver
-allowBuilds:
-  '@prisma/engines': set this to true or false
-  '@scarf/scarf': set this to true or false
-  prisma: set this to true or false
-  unrs-resolver: set this to true or false
